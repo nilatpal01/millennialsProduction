@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const postSchema = new mongoose.Schema({
-  name: {
+  title: {
     type: String,
     require: [true, 'A post must have a name'],
     unique: true,
@@ -11,6 +11,9 @@ const postSchema = new mongoose.Schema({
     type: String,
     require: [true, 'A post must have a description'],
     trim: true,
+  },
+  author: {
+    type: String,
   },
   category: {
     type: String,
