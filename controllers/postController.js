@@ -290,7 +290,9 @@ exports.createPost = async (req, res) => {
     //   req.body.image = req.file.filename;
     // }
     //const newPost = await Post.create(newPost);
-    res.redirect('/');
+    res.status(201).json({
+      status: 'Success',
+    })
   } catch (err) {
     res.status(400).json({
       status: 'fail',
