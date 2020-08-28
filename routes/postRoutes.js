@@ -41,9 +41,7 @@ router
 router
   .route('/')
   .get(postController.getallPost)
-  .post(postController.uploadPostPhotos, postController.resizePostPhotos,
-    postController.createPost
-  );
+  .post(postController.fun1, postController.createPost);
 
 router
   .route('/:id')

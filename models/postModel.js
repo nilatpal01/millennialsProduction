@@ -34,11 +34,6 @@ const postSchema = new mongoose.Schema({
     },
     trim: true,
   },
-  photoCoverName: {
-    type: String,
-    required: [true, 'A post cover photo must have a name'],
-    unique: true,
-  },
   photoCover: {
     type: String,
     required: [true, 'A post must have a cover photo'],

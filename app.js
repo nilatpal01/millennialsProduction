@@ -1,5 +1,6 @@
 const express = require('express');
 const compression = require('compression');
+// const path=require('path');
 const cors = require('cors');
 
 const postRouter = require('./routes/postRoutes');
@@ -18,6 +19,12 @@ if (process.env.NODE_ENV === 'development') {
 app.use(express.json());
 
 app.use(compression());
+
+app.set('view engine', 'ejs');
+
+app.get('/', function (req, res) {
+  res.render('upload');
+});
 
 app.use('/api/v1/post', postRouter);
 

@@ -1,59 +1,61 @@
-const multer = require('multer');
-const sharp = require('sharp');
+// const multer = require('multer');
+// const sharp = require('sharp');
+/*eslint-disable*/
+const express = require('express');
+
 const Post = require('../models/postModel');
 
-const multerStorage = multer.memoryStorage();
+// const multerStorage = multer.memoryStorage();
 
-const multerFilter = (req, file, cb) => {
-  if (file.mimetype.startsWith('image')) {
-    cb(null, true);
-  } else {
-    cb(new Error('Not an image! Please upload only images'), false);
-  }
-};
+// const multerFilter = (req, file, cb) => {
+//   if (file.mimetype.startsWith('image')) {
+//     cb(null, true);
+//   } else {
+//     cb(new Error('Not an image! Please upload only images'), false);
+//   }
+// };
 
-const upload = multer({
-  storage: multerStorage,
-  fileFilter: multerFilter,
-});
+// const upload = multer({
+//   storage: multerStorage,
+//   fileFilter: multerFilter,
+// });
 
-exports.uploadPostPhotos = upload.fields([{
-    name: 'photoCover',
-    maxCount: 1
-  },
-  {
-    name: 'photos',
-    maxCount: 3
-  }
-]);
+// exports.uploadPostPhotos = upload.fields([{
+//     name: 'photoCover',
+//     maxCount: 1
+//   },
+//   {
+//     name: 'photos',
+//     maxCount: 3
+//   }
+// ]);
 
+// exports.resizePostPhotos = async (req, res, next) => {
 
-exports.resizePostPhotos = async (req, res, next) => {
+//   if (!req.files.photoCover) return next();
 
-  if (!req.files.photoCover) return next();
+//   //1.CoverPhoto
+//   req.body.photoCover = `${req.body.photoCoverName}-${Date.now()}.jpeg`;
 
-  //1.CoverPhoto
-  req.body.photoCover = `${req.body.photoCoverName}-${Date.now()}.jpeg`;
+//   await sharp(req.files.photoCover[0].buffer).resize(2000, 1333).toFormat('jpeg').jpeg({
+//     quality: 90
+//   }).toFile(`img/${req.body.photoCover}`);
 
-  await sharp(req.files.photoCover[0].buffer).resize(2000, 1333).toFormat('jpeg').jpeg({
-    quality: 90
-  }).toFile(`img/${req.body.photoCover}`);
+//   //Photos
+//   if (!req.files.photos) return next();
+//   req.body.photos = [];
 
-  //Photos
-  if (!req.files.photos) return next();
-  req.body.photos = [];
+//   await Promise.all(req.files.photos.map(async (file, i) => {
+//     const filename = `post-${req.body.name}-${Date.now()}-${i+1}.jpeg`;
 
-  await Promise.all(req.files.photos.map(async (file, i) => {
-    const filename = `post-${req.body.name}-${Date.now()}-${i+1}.jpeg`;
+//     await sharp(file.buffer).resize(2000, 1333).toFormat('jpeg').jpeg({
+//       quality: 90
+//     }).toFile(`img/${filename}`);
 
-    await sharp(file.buffer).resize(2000, 1333).toFormat('jpeg').jpeg({
-      quality: 90
-    }).toFile(`img/${filename}`);
-
-    req.body.photos.push(filename);
-  }));
-  next();
-}
+//     req.body.photos.push(filename);
+//   }));
+//   next();
+// }
 //exports.uploadPostImage = upload.single('image');
 
 // exports.resizePostImage = async (req, res, next) => {
@@ -67,6 +69,124 @@ exports.resizePostPhotos = async (req, res, next) => {
 //   next();
 // };
 
+/* Google Drive API */
+var formidable = require('formidable');
+const fs = require('fs');
+const {
+  google
+} = require('googleapis');
+const readline = require('readline');
+
+const SCOPES = [
+  'https://www.googleapis.com/auth/drive.appdata',
+  'https://www.googleapis.com/auth/drive.file',
+  'https://www.googleapis.com/auth/drive',
+];
+const TOKEN_PATH = 'token.json';
+
+/*Uploading notes to google drive */
+
+function authorize(credentials, callback, next, fields, req, res) {
+  const {
+    client_secret,
+    client_id,
+    redirect_uris
+  } = credentials.installed;
+  const oAuth2Client = new google.auth.OAuth2(
+    client_id,
+    client_secret,
+    redirect_uris[0]
+  );
+
+  // Check if we have previously stored a token.
+  fs.readFile(TOKEN_PATH, (err, token) => {
+    if (err) {
+      console.log(err);
+    }
+    oAuth2Client.setCredentials(JSON.parse(token));
+    callback(oAuth2Client, next, fields, req, res);
+  });
+}
+
+var fileID;
+var filePath;
+async function uploadImage(auth, next, fields, req, res) {
+  const drive = google.drive({
+    version: 'v3',
+    auth,
+  });
+  const fileMetadata = {
+    name: fields.title + '.jpg',
+    parents: ['1KyD6eFLO8PejPhuUnboYoboyDFK__Sr6'],
+  };
+  const media = {
+    mimeType: 'image/jpg',
+    body: fs.createReadStream(filePath),
+  };
+
+  console.log('IN UPLOAD FILE');
+  try {
+    console.log('IN UPLOAD FILE 1');
+    var file = await drive.files.create({
+      resource: fileMetadata,
+      media: media,
+      fields: 'id',
+    });
+
+    console.log('IN UPLOAD FILE 2');
+    fileID = file.data.id;
+    var imageLink = 'https://drive.google.com/uc?export=view&id=' + fileID;
+
+    console.log(imageLink);
+    console.log(fields);
+
+    var date = new Date();
+
+    var newPost = new Object();
+
+    // newPost.title = fields.title;
+    // newPost.link = imageLink;
+    // newPost.category = fields.category;
+    // newPost.description = fields.description;
+    // newPost.author = fields.author;
+    // newPost.createdAt = date.toDateString();
+
+    var newPost = await new Post({
+      title: fields.title,
+      photoCover: imageLink,
+      category: fields.category,
+      description: fields.description,
+      author: fields.author,
+      createdAt: date.toDateString(),
+    });
+
+    newPost.save(function (err, post) {
+      if (err) return console.log(err);
+      console.log(post);
+    });
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+exports.fun1 = (req, res, next) => {
+  console.log('In fun1');
+  const form = formidable({
+    multiples: true,
+  });
+
+  form.parse(req, function (err, fields, files) {
+    if (err) console.log(err);
+
+    filePath = files.note.path;
+
+    fs.readFile('credentials.json', (err, content) => {
+      if (err) return console.log('Error loading client secret file:', err);
+      authorize(JSON.parse(content), uploadImage, next, fields, req, res);
+    });
+  });
+  next();
+};
 
 exports.getSciAndTech = (req, res, next) => {
   req.query.category = 'ScienceAndTech';
@@ -111,7 +231,7 @@ exports.getFunAnHumours = (req, res, next) => {
 exports.getBarakValley = (req, res, next) => {
   req.query.category = 'BarakValley';
   next();
-}
+};
 
 exports.getallPost = async (req, res) => {
   try {
@@ -169,13 +289,8 @@ exports.createPost = async (req, res) => {
     // if (req.files) {
     //   req.body.image = req.file.filename;
     // }
-    const newPost = await Post.create(req.body);
-    res.status(201).json({
-      status: 'Success',
-      data: {
-        post: newPost,
-      },
-    });
+    //const newPost = await Post.create(newPost);
+    res.redirect('/');
   } catch (err) {
     res.status(400).json({
       status: 'fail',
