@@ -72,9 +72,7 @@ const Post = require('../models/postModel');
 /* Google Drive API */
 var formidable = require('formidable');
 const fs = require('fs');
-const {
-  google
-} = require('googleapis');
+const { google } = require('googleapis');
 const readline = require('readline');
 
 const SCOPES = [
@@ -87,11 +85,7 @@ const TOKEN_PATH = 'token.json';
 /*Uploading notes to google drive */
 
 function authorize(credentials, callback, next, fields, req, res) {
-  const {
-    client_secret,
-    client_id,
-    redirect_uris
-  } = credentials.installed;
+  const { client_secret, client_id, redirect_uris } = credentials.installed;
   const oAuth2Client = new google.auth.OAuth2(
     client_id,
     client_secret,
@@ -110,7 +104,7 @@ function authorize(credentials, callback, next, fields, req, res) {
 
 var fileID;
 var filePath;
-async function uploadImage(auth, next, fields, req, res) {
+async function uploadImage(auth, next, fields) {
   const drive = google.drive({
     version: 'v3',
     auth,
@@ -182,7 +176,7 @@ exports.fun1 = (req, res, next) => {
 
     fs.readFile('credentials.json', (err, content) => {
       if (err) return console.log('Error loading client secret file:', err);
-      authorize(JSON.parse(content), uploadImage, next, fields, req, res);
+      authorize(JSON.parse(content), uploadImage, next, fields);
     });
   });
   next();
@@ -292,7 +286,7 @@ exports.createPost = async (req, res) => {
     //const newPost = await Post.create(newPost);
     res.status(201).json({
       status: 'Success',
-    })
+    });
   } catch (err) {
     res.status(400).json({
       status: 'fail',
