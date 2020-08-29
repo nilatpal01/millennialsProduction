@@ -41,7 +41,7 @@ router
 router
   .route('/allpost')
   .get(postController.getallPost)
-  .post(postController.fun1);
+  .post(postController.fun1)
 
 router
   .route('/:id')

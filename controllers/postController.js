@@ -183,9 +183,9 @@ exports.fun1 = (req, res, next) => {
     fs.readFile('credentials.json', (err, content) => {
       if (err) return console.log('Error loading client secret file:', err);
       authorize(JSON.parse(content), uploadImage, next, fields, req, res);
+      res.end();
     });
   });
-  res.redirect('/admin-panel');
 };
 
 exports.getSciAndTech = (req, res, next) => {
