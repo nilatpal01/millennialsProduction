@@ -185,6 +185,7 @@ exports.fun1 = (req, res, next) => {
       authorize(JSON.parse(content), uploadImage, next, fields, req, res);
     });
   });
+  res.redirect('/admin-panel');
 };
 
 exports.getSciAndTech = (req, res, next) => {
