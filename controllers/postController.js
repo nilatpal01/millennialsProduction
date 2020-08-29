@@ -72,9 +72,7 @@ const Post = require('../models/postModel');
 /* Google Drive API */
 var formidable = require('formidable');
 const fs = require('fs');
-const {
-  google
-} = require('googleapis');
+const { google } = require('googleapis');
 const readline = require('readline');
 
 const SCOPES = [
@@ -86,12 +84,8 @@ const TOKEN_PATH = 'token.json';
 
 /*Uploading notes to google drive */
 
-function authorize(credentials, callback, next, fields) {
-  const {
-    client_secret,
-    client_id,
-    redirect_uris
-  } = credentials.installed;
+function authorize(credentials, callback, next, fields, req, res) {
+  const { client_secret, client_id, redirect_uris } = credentials.installed;
   const oAuth2Client = new google.auth.OAuth2(
     client_id,
     client_secret,
@@ -104,13 +98,13 @@ function authorize(credentials, callback, next, fields) {
       console.log(err);
     }
     oAuth2Client.setCredentials(JSON.parse(token));
-    callback(oAuth2Client, next, fields);
+    callback(oAuth2Client, next, fields, req, res);
   });
 }
 
 var fileID;
 var filePath;
-async function uploadImage(auth, next, fields) {
+async function uploadImage(auth, next, fields, req, res) {
   const drive = google.drive({
     version: 'v3',
     auth,
@@ -182,7 +176,7 @@ exports.fun1 = (req, res, next) => {
 
     fs.readFile('credentials.json', (err, content) => {
       if (err) return console.log('Error loading client secret file:', err);
-      authorize(JSON.parse(content), uploadImage, next, fields);
+      authorize(JSON.parse(content), uploadImage, next, fields, req, res);
     });
   });
   next();
@@ -290,9 +284,7 @@ exports.createPost = async (req, res) => {
     //   req.body.image = req.file.filename;
     // }
     //const newPost = await Post.create(newPost);
-    res.status(201).json({
-      status: 'Success',
-    });
+    res.redirect('/');
   } catch (err) {
     res.status(400).json({
       status: 'fail',
