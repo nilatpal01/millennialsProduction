@@ -289,7 +289,7 @@ exports.createPost = async (req, res) => {
     //   req.body.image = req.file.filename;
     // }
     //const newPost = await Post.create(newPost);
-    res.redirect('/');
+    res.redirect('/admin-panel');
   } catch (err) {
     res.status(400).json({
       status: 'fail',

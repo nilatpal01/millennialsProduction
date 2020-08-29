@@ -22,7 +22,7 @@ app.use(compression());
 
 app.set('view engine', 'ejs');
 
-app.get('/', function (req, res) {
+app.get('/admin-panel', function (req, res) {
   res.render('upload');
 });
 
