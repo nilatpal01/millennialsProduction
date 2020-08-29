@@ -39,7 +39,7 @@ router
   .get(postController.getBarakValley, postController.getallPost);
 
 router
-  .route('/')
+  .route('/admin')
   .get(postController.getallPost)
   .post(postController.fun1, postController.createPost);
 

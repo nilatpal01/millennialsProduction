@@ -72,7 +72,9 @@ const Post = require('../models/postModel');
 /* Google Drive API */
 var formidable = require('formidable');
 const fs = require('fs');
-const { google } = require('googleapis');
+const {
+  google
+} = require('googleapis');
 const readline = require('readline');
 
 const SCOPES = [
@@ -85,7 +87,11 @@ const TOKEN_PATH = 'token.json';
 /*Uploading notes to google drive */
 
 function authorize(credentials, callback, next, fields, req, res) {
-  const { client_secret, client_id, redirect_uris } = credentials.installed;
+  const {
+    client_secret,
+    client_id,
+    redirect_uris
+  } = credentials.installed;
   const oAuth2Client = new google.auth.OAuth2(
     client_id,
     client_secret,
@@ -107,7 +113,7 @@ var filePath;
 async function uploadImage(auth, next, fields, req, res) {
   const drive = google.drive({
     version: 'v3',
-    auth,
+    auth
   });
   const fileMetadata = {
     name: fields.title + '.jpg',
