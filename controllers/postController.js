@@ -185,7 +185,6 @@ exports.fun1 = (req, res, next) => {
       authorize(JSON.parse(content), uploadImage, next, fields, req, res);
     });
   });
-  next();
 };
 
 exports.getSciAndTech = (req, res, next) => {
