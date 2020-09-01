@@ -2,14 +2,14 @@
 
 <form enctype="multipart/form-data" action="/api/v1/post/allpost" method="POST">
 
-    <label for="link">Select Note file (pdf/image)</label><br>
+    <label for="link">Select Image</label><br>
     <input type="file" id="link" name="note" required><br><br>
 
     <label for="title">Title</label><br>
     <input type="text" id="title" name="title" required><br><br>
 
     <label for="description">Description</label><br>
-    <input type="text" id="description" name="description" required><br><br>
+    <textarea rows="4" cols="50" id="description" name="description" required>Enter Text Here</textarea><br><br>
 
     <label for="category">Category</label><br>
     <input type="text" id="category" name="category" required><br><br>

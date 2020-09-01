@@ -9,8 +9,7 @@ const postSchema = new mongoose.Schema({
 
   description: {
     type: String,
-    require: [true, 'A post must have a description'],
-    trim: true,
+    require: [true, 'A post must have a description']
   },
   author: {
     type: String,
