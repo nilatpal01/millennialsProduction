@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const compression = require('compression');
 // const path=require('path');
@@ -21,6 +22,8 @@ app.use(express.json());
 app.use(compression());
 
 app.set('view engine', 'ejs');
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/admin-panel', function (req, res) {
   res.render('upload');
